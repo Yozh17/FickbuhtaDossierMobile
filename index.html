@@ -3,995 +3,1246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Личное дело персонажа — Фикбухта</title>
+    <title>Карточка персонажа — Фикбухта</title>
     
-    <!-- PWA Манифест -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Цвет темы для мобильных браузеров -->
-    <meta name="theme-color" content="#0a0f2a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js">
+    </script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #0a0f2a 0%, #0b1a3a 30%, #0a1a3a 70%, #0b1030 100%);
-            font-family: 'Georgia', 'Times New Roman', 'Segoe UI', serif;
-            padding: 20px;
-            position: relative;
-            color: #eef5ff;
-            overflow-x: hidden;
-        }
-
-        .star {
-            position: fixed;
-            color: white;
-            font-size: 0;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0;
-            animation: starTwinkle 3s infinite alternate;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { min-height: 100vh; font-family: 'Playfair Display', 'Georgia', serif; padding: 20px; transition: all 0.5s ease; display: flex; justify-content: center; align-items: center; }
         
-        .star::before {
-            content: "✦";
-            font-size: clamp(6px, 1.2vw, 12px);
-            display: block;
-            text-shadow: 0 0 2px white, 0 0 6px rgba(255,255,200,0.6);
-        }
+        /* --- ТЕМА: САПФИР --- */
+        body.theme-sapphire { background: linear-gradient(145deg, #080c1a 0%, #0e1a35 40%, #0a1225 100%); color: #D4AF37; }
+        body.theme-sapphire .container { background: rgba(8, 18, 35, 0.92); backdrop-filter: blur(8px); border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(212, 175, 55, 0.1); }
+        body.theme-sapphire .form-control input, body.theme-sapphire .form-control textarea { background: rgba(10, 20, 40, 0.8); border: 1px solid rgba(212, 175, 55, 0.2); color: #D4AF37; }
+        body.theme-sapphire .form-control input:focus, body.theme-sapphire .form-control textarea:focus { border-color: #D4AF37; box-shadow: 0 0 20px rgba(212, 175, 55, 0.05); }
+        body.theme-sapphire .label-cell { color: #D4AF37; }
+        body.theme-sapphire .section-title { color: #D4AF37; border-bottom-color: rgba(212, 175, 55, 0.2); }
+        body.theme-sapphire .slot-btn { background: rgba(0, 0, 0, 0.4); border: 1px solid #D4AF37; color: #D4AF37; }
+        body.theme-sapphire .slot-btn.saved { background: #1a4a3a; border-color: #88ffaa; color: #88ffaa; }
+        body.theme-sapphire .export-btn { background: linear-gradient(135deg, #2a3a6a, #1a2a4a); box-shadow: 0 4px 0 #0a1a2a; color: #D4AF37; border: 1px solid rgba(212, 175, 55, 0.2); }
+        body.theme-sapphire .export-btn.txt-btn { background: linear-gradient(135deg, #2a5a4a, #1a3a2a); }
+        body.theme-sapphire .export-btn.doc-btn { background: linear-gradient(135deg, #4a3a6a, #2a2a4a); }
+        body.theme-sapphire .reset-btn { background: linear-gradient(135deg, #6a2a2a, #4a1a1a); box-shadow: 0 4px 0 #2a0a0a; color: #D4AF37; }
+        body.theme-sapphire .footer { color: #b8a4d4; }
+        body.theme-sapphire .import-export-row .ie-btn { border-color: rgba(212, 175, 55, 0.15); background: rgba(255, 255, 255, 0.05); color: inherit; }
+        body.theme-sapphire .import-export-row .ie-btn:hover { background: rgba(212, 175, 55, 0.08); }
+        body.theme-sapphire .import-export-row .ie-btn.export-json { color: #88ccff; border-color: #4488cc; }
+        body.theme-sapphire .import-export-row .ie-btn.import-json { color: #88ffaa; border-color: #44aa66; }
+
+        /* --- ТЕМА: ПЕРГАМЕНТ --- */
+        body.theme-parchment { background: #d8c8a8; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23d8c8a8"/><path d="M10 10 L90 10 L95 90 L5 90 Z" fill="%23cbb895" opacity="0.3"/><circle cx="30" cy="40" r="2" fill="%23b8a080" opacity="0.5"/><circle cx="70" cy="60" r="1.5" fill="%23b8a080" opacity="0.5"/><circle cx="50" cy="80" r="2.5" fill="%23b8a080" opacity="0.4"/></svg>'); color: #1a1008; }
+        body.theme-parchment .container { background: rgba(235, 215, 180, 0.92); backdrop-filter: blur(4px); border: 2px solid #8a7a5a; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 0 50px rgba(160, 130, 80, 0.2); }
+        body.theme-parchment .form-control input, body.theme-parchment .form-control textarea { background: rgba(245, 235, 210, 0.8); border: 1px solid #8a7a5a; color: #1a1008; }
+        body.theme-parchment .form-control input:focus, body.theme-parchment .form-control textarea:focus { border-color: #5a3a1a; box-shadow: 0 0 20px rgba(90, 58, 26, 0.05); }
+        body.theme-parchment .label-cell { color: #3a2a1a; }
+        body.theme-parchment .section-title { color: #3a2a1a; border-bottom-color: #8a7a5a; }
+        body.theme-parchment .slot-btn { background: rgba(180, 150, 110, 0.3); border: 1px solid #5a3a1a; color: #3a2a1a; }
+        body.theme-parchment .slot-btn.saved { background: #3a6a4a; border-color: #1a3a2a; color: #eef5ff; }
+        body.theme-parchment .export-btn { background: linear-gradient(135deg, #6a5a3a, #4a3a1a); box-shadow: 0 4px 0 #2a1a0a; color: #f5e6c8; }
+        body.theme-parchment .export-btn.txt-btn { background: linear-gradient(135deg, #3a6a4a, #1a4a2a); }
+        body.theme-parchment .export-btn.doc-btn { background: linear-gradient(135deg, #5a4a3a, #3a2a1a); }
+        body.theme-parchment .reset-btn { background: linear-gradient(135deg, #7a4a3a, #5a2a1a); box-shadow: 0 4px 0 #2a0a0a; color: #f5e6c8; }
+        body.theme-parchment .footer { color: #5a4a3a; }
+        body.theme-parchment .import-export-row .ie-btn { border-color: rgba(26, 74, 58, 0.15); background: rgba(255, 255, 255, 0.3); color: #1a4a3a; }
+        body.theme-parchment .import-export-row .ie-btn:hover { background: rgba(26, 74, 58, 0.05); }
+        body.theme-parchment .import-export-row .ie-btn.export-json { color: #2a4a7a; border-color: #2a4a7a; }
+        body.theme-parchment .import-export-row .ie-btn.import-json { color: #1a4a3a; border-color: #1a4a3a; }
+
+        /* --- ТЕМА: ЖЕМЧУГ --- */
+        body.theme-pearl { background: #f0ece4; background-image: radial-gradient(ellipse at 20% 50%, rgba(200, 220, 210, 0.3) 0%, transparent 70%), radial-gradient(ellipse at 80% 50%, rgba(180, 210, 200, 0.2) 0%, transparent 70%); color: #1a4a3a; }
+        body.theme-pearl .container { background: rgba(248, 245, 240, 0.92); backdrop-filter: blur(4px); border: 1px solid rgba(26, 74, 58, 0.2); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08), inset 0 0 80px rgba(200, 220, 210, 0.1); }
+        body.theme-pearl .form-control input, body.theme-pearl .form-control textarea { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(26, 74, 58, 0.15); color: #1a4a3a; }
+        body.theme-pearl .form-control input:focus, body.theme-pearl .form-control textarea:focus { border-color: #1a4a3a; box-shadow: 0 0 20px rgba(26, 74, 58, 0.05); }
+        body.theme-pearl .label-cell { color: #1a4a3a; }
+        body.theme-pearl .section-title { color: #1a4a3a; border-bottom-color: rgba(26, 74, 58, 0.15); }
+        body.theme-pearl .slot-btn { background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(26, 74, 58, 0.2); color: #1a4a3a; }
+        body.theme-pearl .slot-btn.saved { background: #1a4a3a; border-color: #2a7a5a; color: #f0ece4; }
+        body.theme-pearl .export-btn { background: linear-gradient(135deg, #1a4a3a, #2a6a4a); box-shadow: 0 4px 0 #0a2a1a; color: #f0ece4; }
+        body.theme-pearl .export-btn.txt-btn { background: linear-gradient(135deg, #2a5a4a, #1a3a2a); }
+        body.theme-pearl .export-btn.doc-btn { background: linear-gradient(135deg, #3a4a5a, #2a3a4a); }
+        body.theme-pearl .reset-btn { background: linear-gradient(135deg, #7a4a3a, #5a2a1a); box-shadow: 0 4px 0 #2a0a0a; color: #f0ece4; }
+        body.theme-pearl .footer { color: #5a7a6a; }
+        body.theme-pearl .header h1 { color: #1a4a3a; text-shadow: 0 2px 10px rgba(26, 74, 58, 0.05); }
+        body.theme-pearl .header .sub { color: #5a7a6a; }
+        body.theme-pearl .photo-cell { border-color: rgba(26, 74, 58, 0.1); background: rgba(255, 255, 255, 0.3); }
+        body.theme-pearl .photo-cell .photo-overlay { background: rgba(255, 255, 255, 0.85); border-color: rgba(26, 74, 58, 0.1); }
+        body.theme-pearl .photo-cell .photo-overlay button:hover { background: rgba(26, 74, 58, 0.05); }
+        body.theme-pearl .photo-cell .photo-overlay .remove-btn:hover { background: rgba(200, 50, 50, 0.1); }
+        body.theme-pearl .slots-panel { background: rgba(255, 255, 255, 0.3); border: 1px solid rgba(26, 74, 58, 0.08); }
+        body.theme-pearl .slots-title { color: #1a4a3a; }
+        body.theme-pearl .slot-label { color: #5a7a6a; }
+        body.theme-pearl .import-export-row .ie-btn { border-color: rgba(26, 74, 58, 0.15); background: rgba(255, 255, 255, 0.3); color: #1a4a3a; }
+        body.theme-pearl .import-export-row .ie-btn:hover { background: rgba(26, 74, 58, 0.05); }
+        body.theme-pearl .import-export-row .ie-btn.export-json { color: #2a4a7a; border-color: #2a4a7a; }
+        body.theme-pearl .import-export-row .ie-btn.import-json { color: #1a4a3a; border-color: #1a4a3a; }
+
+        /* --- ТЕМА: СВОЯ --- */
+        body.theme-custom { background: #1a1a2e; color: #ffffff; }
+        body.theme-custom .container { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); }
+        body.theme-custom .form-control input, body.theme-custom .form-control textarea { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: inherit; }
+        body.theme-custom .form-control input:focus, body.theme-custom .form-control textarea:focus { border-color: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.05); }
+        body.theme-custom .label-cell { color: inherit; }
+        body.theme-custom .section-title { color: inherit; border-bottom-color: rgba(255, 255, 255, 0.1); }
+        body.theme-custom .slot-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); color: inherit; }
+        body.theme-custom .slot-btn.saved { background: rgba(255, 255, 255, 0.1); border-color: #88ffaa; color: #88ffaa; }
+        body.theme-custom .export-btn { background: rgba(255, 255, 255, 0.1); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3); color: inherit; border: 1px solid rgba(255, 255, 255, 0.1); }
+        body.theme-custom .export-btn.txt-btn { background: rgba(255, 255, 255, 0.08); }
+        body.theme-custom .export-btn.doc-btn { background: rgba(255, 255, 255, 0.08); }
+        body.theme-custom .reset-btn { background: rgba(200, 50, 50, 0.2); box-shadow: 0 4px 0 rgba(100, 0, 0, 0.3); color: inherit; border: 1px solid rgba(200, 50, 50, 0.2); }
+        body.theme-custom .footer { color: rgba(255, 255, 255, 0.4); }
+        body.theme-custom .header h1 { color: inherit; text-shadow: 0 0 30px rgba(255, 255, 255, 0.05); }
+        body.theme-custom .header .sub { color: rgba(255, 255, 255, 0.5); }
+        body.theme-custom .photo-cell { border-color: rgba(255, 255, 255, 0.1); background: rgba(0, 0, 0, 0.3); }
+        body.theme-custom .photo-cell .photo-overlay { background: rgba(0, 0, 0, 0.6); border-color: rgba(255, 255, 255, 0.1); }
+        body.theme-custom .photo-cell .photo-overlay button:hover { background: rgba(255, 255, 255, 0.05); }
+        body.theme-custom .photo-cell .photo-overlay .remove-btn:hover { background: rgba(200, 50, 50, 0.2); }
+        body.theme-custom .slots-panel { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); }
+        body.theme-custom .slots-title { color: inherit; }
+        body.theme-custom .slot-label { color: rgba(255, 255, 255, 0.6); }
+        body.theme-custom .import-export-row .ie-btn { border-color: rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.03); color: inherit; }
+        body.theme-custom .import-export-row .ie-btn:hover { background: rgba(255, 255, 255, 0.08); }
+        body.theme-custom .import-export-row .ie-btn.export-json { color: #88ccff; border-color: #4488cc; }
+        body.theme-custom .import-export-row .ie-btn.import-json { color: #88ffaa; border-color: #44aa66; }
+        body.theme-custom .custom-colors { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); }
+        body.theme-custom .custom-colors label { color: rgba(255, 255, 255, 0.7); }
+
+        /* --- ОБЩИЕ СТИЛИ --- */
+        .container { max-width: 1000px; width: 100%; margin: 0 auto; border-radius: 32px; padding: 30px; transition: all 0.3s ease; }
         
-        @keyframes starTwinkle {
-            0% { opacity: 0.2; }
-            100% { opacity: 1; }
-        }
+        .theme-switcher { display: flex; gap: 6px; justify-content: center; margin-bottom: 25px; padding: 5px; border-radius: 40px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(4px); flex-wrap: wrap; }
+        .theme-btn { padding: 8px 16px; border-radius: 30px; border: none; cursor: pointer; font-family: 'Playfair Display', serif; font-weight: 700; transition: 0.3s; background: transparent; color: inherit; opacity: 0.5; font-size: 0.8rem; letter-spacing: 0.5px; }
+        .theme-btn.active { opacity: 1; background: rgba(212, 175, 55, 0.12); box-shadow: 0 0 30px rgba(212, 175, 55, 0.05); }
+        body.theme-parchment .theme-btn.active { background: rgba(80, 50, 20, 0.15); }
+        body.theme-pearl .theme-btn.active { background: rgba(26, 74, 58, 0.08); box-shadow: 0 0 30px rgba(26, 74, 58, 0.03); }
+        body.theme-custom .theme-btn.active { background: rgba(255, 255, 255, 0.08); box-shadow: 0 0 30px rgba(255, 255, 255, 0.03); }
+        .theme-btn:hover { opacity: 1; transform: scale(1.03); }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 2;
-            background: rgba(8, 18, 35, 0.85);
-            backdrop-filter: blur(4px);
-            border-radius: 48px;
-            padding: 25px 20px 35px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 0 2px rgba(255,220,150,0.2);
-            border: 1px solid rgba(255,215,140,0.4);
-        }
+        .custom-colors { display: flex; gap: 20px; justify-content: center; padding: 12px 20px; border-radius: 40px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+        .custom-colors label { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; }
+        .custom-colors input[type="color"] { width: 40px; height: 40px; border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 50%; cursor: pointer; background: none; padding: 2px; }
+        .custom-colors input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        .custom-colors input[type="color"]::-webkit-color-swatch { border: none; border-radius: 50%; }
+        .custom-colors input[type="color"]::-moz-color-swatch { border: none; border-radius: 50%; }
 
-        h1 {
-            text-align: center;
-            font-size: 2rem;
-            letter-spacing: 3px;
-            color: #ffefc0;
-            text-shadow: 0 0 8px #ffb347, 0 0 3px #2a3f5e;
-            margin-bottom: 5px;
-            font-weight: normal;
-        }
-
-        .sub {
-            text-align: center;
-            font-style: italic;
-            margin-bottom: 25px;
-            color: #bdd4ff;
-            font-size: 0.9rem;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 25px;
-            border-bottom: 1px solid rgba(255,215,140,0.3);
-            flex-wrap: wrap;
-        }
-        .tab-btn {
-            background: rgba(25, 35, 60, 0.6);
-            border: none;
-            padding: 12px 20px;
-            font-size: 1rem;
-            font-family: inherit;
-            color: #bdd4ff;
-            cursor: pointer;
-            border-radius: 30px 30px 0 0;
-            transition: 0.2s;
-        }
-        .tab-btn.active {
-            background: rgba(255, 180, 70, 0.2);
-            color: #ffefc0;
-            border-bottom: 2px solid #ffb347;
-        }
-        .tab-btn:hover:not(.active) {
-            background: rgba(255, 180, 70, 0.1);
-        }
-
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.3s;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: flex-start;
-            gap: 10px;
-        }
-        .form-label {
-            width: 140px;
-            font-weight: bold;
-            color: #ffdfaa;
-            padding-top: 8px;
-        }
-        .form-control {
-            flex: 1;
-            min-width: 200px;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 8px 12px;
-            background: rgba(15, 25, 45, 0.9);
-            border: 1px solid rgba(255,215,140,0.5);
-            border-radius: 20px;
-            color: #f0f4ff;
-            font-family: inherit;
-            font-size: 0.9rem;
-            transition: 0.2s;
-        }
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #ffb347;
-            box-shadow: 0 0 8px rgba(255,180,70,0.3);
-        }
-        textarea {
-            resize: vertical;
-            min-height: 60px;
-        }
-
-        .photo-area {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-        .photo-preview {
-            width: 120px;
-            height: 120px;
-            background: rgba(0,0,0,0.4);
-            border-radius: 20px;
-            border: 2px dashed #ffcf8a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-        }
-        .photo-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .photo-preview .no-photo {
-            text-align: center;
-            color: #88aaff;
-            font-size: 0.7rem;
-        }
-        .photo-btn {
-            background: linear-gradient(135deg, #4a6a8a, #2c4e6e);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            color: white;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        .slots-panel {
-            background: rgba(15, 25, 45, 0.6);
-            border-radius: 20px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        .slots-title {
-            font-size: 0.9rem;
-            color: #ffdfaa;
-            margin-bottom: 12px;
-        }
-        .slots-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .slot-btn {
-            background: rgba(0,0,0,0.4);
-            border: 1px solid #ffcf8a;
-            border-radius: 30px;
-            padding: 8px 15px;
-            color: #ffdfaa;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: 0.2s;
-        }
-        .slot-btn:hover {
-            background: #ffb347;
-            color: #0a0f2a;
-        }
-        .slot-btn.saved {
-            background: #2a5a3a;
-            border-color: #88ffaa;
-        }
-
-        .export-btn {
-            display: block;
-            width: 100%;
-            margin-top: 20px;
-            padding: 14px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, #6a5a8a, #4e3e6e);
-            border: none;
-            border-radius: 60px;
-            color: #ffefc0;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 4px 0 #2a1f40;
-        }
-        .export-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #2a1f40;
-        }
+        .header { text-align: center; margin-bottom: 25px; }
+        .header h1 { font-size: 2.2rem; letter-spacing: 8px; font-weight: 700; }
+        .header .sub { font-style: italic; font-size: 0.95rem; letter-spacing: 2px; opacity: 0.7; margin-top: 2px; }
+        .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 20px; min-height: 600px; }
+        @media (max-width: 750px) { .card-grid { grid-template-columns: 1fr; gap: 20px; } }
+        .photo-cell { border-radius: 20px; overflow: hidden; position: relative; min-height: 500px; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(212, 175, 55, 0.1); }
+        .photo-cell .photo-container { width: 100%; height: 100%; min-height: 500px; display: flex; align-items: center; justify-content: center; position: relative; background: rgba(0, 0, 0, 0.1); }
+        .photo-cell .photo-container img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
+        .photo-cell .photo-container .no-photo { font-size: 60px; opacity: 0.2; text-align: center; line-height: 1.4; }
+        .photo-cell .photo-container .no-photo span { display: block; font-size: 14px; margin-top: 10px; opacity: 0.5; }
+        .photo-cell .photo-overlay { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; background: rgba(0, 0, 0, 0.6); padding: 6px 14px; border-radius: 40px; backdrop-filter: blur(8px); border: 1px solid rgba(212, 175, 55, 0.15); }
+        .photo-cell .photo-overlay button { background: none; border: none; color: inherit; font-family: 'Playfair Display', serif; font-size: 0.75rem; cursor: pointer; padding: 4px 12px; border-radius: 30px; transition: 0.2s; font-weight: 700; letter-spacing: 0.5px; }
+        .photo-cell .photo-overlay button:hover { background: rgba(212, 175, 55, 0.15); }
+        .photo-cell .photo-overlay .remove-btn { color: #ff6b6b; }
+        .photo-cell .photo-overlay .remove-btn:hover { background: rgba(255, 50, 50, 0.15); }
+        .fields-cell { display: flex; flex-direction: column; gap: 2px; padding: 4px 0; }
+        .section-title { font-size: 14px; font-weight: 700; letter-spacing: 3px; padding-bottom: 4px; margin-top: 8px; border-bottom: 1px solid; opacity: 0.8; }
+        .section-title:first-of-type { margin-top: 0; }
+        .field-row { display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: start; padding: 3px 0; }
+        .label-cell { font-weight: 700; font-size: 0.9rem; text-align: right; letter-spacing: 0.5px; opacity: 0.9; flex-shrink: 0; padding-top: 6px; }
+        .form-control { width: 100%; }
+        .form-control input, .form-control textarea { width: 100%; padding: 6px 14px; border-radius: 16px; font-family: 'Playfair Display', serif; font-size: 0.9rem; transition: 0.2s; resize: vertical; background: rgba(10, 20, 40, 0.5); border: 1px solid rgba(212, 175, 55, 0.1); color: inherit; line-height: 1.4; }
+        .form-control textarea { min-height: 40px; resize: vertical; }
+        .form-control input:focus, .form-control textarea:focus { outline: none; border-color: #D4AF37; box-shadow: 0 0 25px rgba(212, 175, 55, 0.05); }
+        .slots-panel { border-radius: 20px; padding: 15px 20px; margin: 15px 0; }
+        body.theme-sapphire .slots-panel { background: rgba(15, 25, 45, 0.3); border: 1px solid rgba(212, 175, 55, 0.08); }
+        body.theme-parchment .slots-panel { background: rgba(180, 150, 110, 0.15); border: 1px solid #8a7a5a; }
+        .slots-title { font-size: 0.9rem; margin-bottom: 10px; font-weight: 700; letter-spacing: 1px; }
+        .slot-item { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; flex-wrap: wrap; }
+        .slot-label { min-width: 80px; font-size: 0.8rem; font-weight: 700; }
+        .slot-btn-group { display: flex; gap: 5px; flex-wrap: wrap; }
+        .slot-btn { padding: 4px 14px; border-radius: 30px; cursor: pointer; font-size: 0.7rem; font-family: 'Playfair Display', serif; transition: 0.2s; border: 1px solid; font-weight: 700; background: transparent; }
+        .slot-btn.save-btn { border-color: #44aa66; color: #88ffaa; }
+        .slot-btn.load-btn { border-color: #4488cc; color: #88ccff; }
+        body.theme-parchment .slot-btn.save-btn { border-color: #2a5a3a; color: #1a3a2a; }
+        body.theme-parchment .slot-btn.load-btn { border-color: #2a4a7a; color: #1a2a4a; }
+        body.theme-pearl .slot-btn.save-btn { border-color: #1a4a3a; color: #1a4a3a; }
+        body.theme-pearl .slot-btn.load-btn { border-color: #2a4a7a; color: #2a4a7a; }
+        body.theme-custom .slot-btn.save-btn { border-color: #88ffaa; color: #88ffaa; }
+        body.theme-custom .slot-btn.load-btn { border-color: #88ccff; color: #88ccff; }
+        .slot-btn:hover { transform: scale(1.05); filter: brightness(1.2); }
+        .slot-btn.saved-indicator { border-color: #ffcc44; color: #ffdd88; font-size: 0.7rem; background: rgba(255, 200, 50, 0.08); padding: 4px 8px; }
+        body.theme-parchment .slot-btn.saved-indicator { border-color: #8a7a3a; color: #3a2a0a; }
+        body.theme-pearl .slot-btn.saved-indicator { border-color: #1a4a3a; color: #1a4a3a; background: rgba(26, 74, 58, 0.05); }
+        body.theme-custom .slot-btn.saved-indicator { border-color: #ffcc44; color: #ffdd88; background: rgba(255, 200, 50, 0.05); }
+        .export-btn { display: block; width: 100%; margin-top: 10px; padding: 12px; font-size: 1rem; font-weight: 700; border: none; border-radius: 60px; cursor: pointer; transition: 0.15s; font-family: 'Playfair Display', serif; letter-spacing: 1px; }
+        .export-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #2a1f40 !important; }
+        .export-btn:disabled { opacity: 0.6; transform: translateY(2px); cursor: not-allowed; }
+        .reset-btn { display: block; width: 100%; margin-top: 10px; padding: 10px; font-size: 0.95rem; font-weight: 700; border: none; border-radius: 60px; cursor: pointer; transition: 0.15s; font-family: 'Playfair Display', serif; letter-spacing: 1px; }
+        .reset-btn:active { transform: translateY(2px); }
+        .footer { text-align: center; margin-top: 20px; font-size: 0.7rem; font-style: italic; letter-spacing: 1px; opacity: 0.6; }
         
-        .txt-btn {
-            background: linear-gradient(135deg, #4a6a6a, #2c4e4e);
-            box-shadow: 0 4px 0 #1a3a3a;
-            margin-top: 10px;
-        }
-        
-        .doc-btn {
-            background: linear-gradient(135deg, #2a6a5a, #1a4e3e);
-            box-shadow: 0 4px 0 #0a3a2a;
-            margin-top: 10px;
-        }
-        
-        .reset-btn {
-            display: block;
-            width: 100%;
-            margin-top: 10px;
-            padding: 12px;
-            font-size: 1rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, #8a4a4a, #6e2c2c);
-            border: none;
-            border-radius: 60px;
-            color: #ffefc0;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 4px 0 #3a1010;
-        }
-        .reset-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #3a1010;
-        }
+        .crop-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.92); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(8px); animation: fadeInModal 0.3s ease; }
+        @keyframes fadeInModal { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes shakeModal { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .crop-modal.active { display: flex; }
+        .crop-modal .crop-wrapper { width: 90%; max-width: 750px; background: #1a1a2e; border-radius: 24px; overflow: hidden; border: 1px solid rgba(212, 175, 55, 0.15); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8); pointer-events: auto; }
+        .crop-modal .crop-wrapper img { max-width: 100%; display: block; }
+        .crop-modal .crop-controls { display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap; justify-content: center; pointer-events: auto; }
+        .crop-modal .crop-controls button { padding: 10px 35px; border-radius: 40px; border: none; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.25s; letter-spacing: 0.5px; }
+        .crop-modal .crop-controls .crop-confirm { background: linear-gradient(135deg, #D4AF37, #b8962a); color: #0a1225; }
+        .crop-modal .crop-controls .crop-cancel { background: rgba(255, 255, 255, 0.05); color: #aaa; border: 1px solid rgba(255, 255, 255, 0.08); }
+        .crop-modal .crop-controls button:hover { transform: scale(1.05); }
+        .crop-modal .crop-controls button:active { transform: scale(0.95); }
+        .crop-modal .crop-hint { color: #888; font-size: 0.8rem; margin-top: 15px; font-family: 'Playfair Display', serif; letter-spacing: 1px; text-align: center; pointer-events: none; }
 
-        /* PWA: кнопка установки */
-        .install-banner {
-            display: none;
-            background: rgba(255, 180, 70, 0.15);
-            border: 1px solid #ffb347;
-            border-radius: 30px;
-            padding: 12px 18px;
-            margin-bottom: 20px;
-            text-align: center;
-            color: #ffdfaa;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .install-banner:hover {
-            background: rgba(255, 180, 70, 0.25);
-        }
-        .install-banner.show {
-            display: block;
-        }
+        .import-export-row { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .import-export-row .ie-btn { flex: 1; min-width: 120px; padding: 10px; border-radius: 40px; border: none; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.2s; letter-spacing: 0.5px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(212, 175, 55, 0.15); color: inherit; }
+        .import-export-row .ie-btn:hover { background: rgba(212, 175, 55, 0.08); transform: scale(1.02); }
+        .import-export-row .ie-btn.export-json { color: #88ccff; border-color: #4488cc; }
+        .import-export-row .ie-btn.import-json { color: #88ffaa; border-color: #44aa66; }
 
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 0.7rem;
-            color: #88aaff;
-        }
-
-        @media (max-width: 650px) {
-            .form-label {
-                width: 100%;
-            }
-            .tabs {
-                justify-content: center;
-            }
-            .tab-btn {
-                padding: 8px 12px;
-                font-size: 0.8rem;
-            }
-        }
+        @media (max-width: 750px) { .container { padding: 20px; } .photo-cell { min-height: 300px; } .photo-cell .photo-container { min-height: 300px; } .field-row { grid-template-columns: 1fr; gap: 4px; } .label-cell { text-align: left; font-size: 0.8rem; padding-top: 2px; } .header h1 { font-size: 1.6rem; letter-spacing: 4px; } .import-export-row .ie-btn { min-width: 100px; font-size: 0.75rem; padding: 8px; } .custom-colors { gap: 12px; padding: 10px 15px; } .custom-colors label { font-size: 0.75rem; } .custom-colors input[type="color"] { width: 32px; height: 32px; } }
+        @media (max-width: 500px) { body { padding: 10px; } .container { padding: 15px; border-radius: 20px; } .photo-cell { min-height: 200px; } .photo-cell .photo-container { min-height: 200px; } .photo-cell .photo-overlay { bottom: 10px; padding: 4px 10px; } .photo-cell .photo-overlay button { font-size: 0.65rem; padding: 3px 8px; } .slot-item { flex-direction: column; align-items: stretch; } .slot-btn-group { justify-content: center; } .crop-modal .crop-wrapper { width: 95%; } .theme-switcher .theme-btn { padding: 6px 12px; font-size: 0.7rem; } .import-export-row { flex-direction: column; } .custom-colors { flex-direction: column; gap: 8px; } }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js">
+    </script>
 </head>
-<body>
 
-<div class="container">
-    <h1>⚓ ФИКБУХТА ⚓</h1>
-    <div class="sub">✦ личное дело персонажа ✦</div>
+<body class="theme-sapphire">
 
-    <!-- PWA: баннер установки -->
-    <div class="install-banner" id="installBanner">
-        📲 Установить приложение
-    </div>
-
-    <div class="tabs">
-        <button class="tab-btn active" data-tab="tab1">📖 ОСНОВНОЕ</button>
-        <button class="tab-btn" data-tab="tab2">🎭 ХАРАКТЕР</button>
-        <button class="tab-btn" data-tab="tab3">📜 ИСТОРИЯ И СВЯЗИ</button>
-        <button class="tab-btn" data-tab="tab4">⚡ ЭКСПОРТ</button>
-    </div>
-
-    <div id="tab1" class="tab-content active">
-        <div class="photo-area">
-            <div class="photo-preview" id="photoPreview">
-                <div class="no-photo">📷<br>нет фото</div>
-            </div>
-            <input type="file" id="photoUpload" accept="image/*" style="display:none">
-            <button class="photo-btn" id="uploadPhotoBtn">📷 ЗАГРУЗИТЬ ФОТО</button>
+    <div class="container">
+        <div class="theme-switcher">
+            <button class="theme-btn active" data-theme="sapphire">🧿 Сапфир</button>
+            <button class="theme-btn" data-theme="parchment">📜 Пергамент</button>
+            <button class="theme-btn" data-theme="pearl">🪷 Жемчуг</button>
+            <button class="theme-btn" data-theme="custom">🎨 Своя</button>
         </div>
 
-        <div class="form-group">
-            <div class="form-label">🌟 Имя:</div>
-            <div class="form-control"><input type="text" id="name" placeholder="Имя персонажа"></div>
+        <div class="custom-colors" id="customColors" style="display:none;">
+            <label>
+                🎨 Фон
+                <input type="color" id="customBgColor" value="#1a1a2e">
+            </label>
+            <label>
+                ✏️ Шрифт
+                <input type="color" id="customTextColor" value="#ffffff">
+            </label>
         </div>
 
-        <div class="form-group">
-            <div class="form-label">📅 Возраст:</div>
-            <div class="form-control"><input type="text" id="age" placeholder="например: 17, 243, бессмертен"></div>
+        <div class="header">
+            <h1>⚓ ФИКБУХТА ⚓</h1>
+            <div class="sub">✦ карточка персонажа ✦</div>
         </div>
 
-        <div class="form-group">
-            <div class="form-label">🧬 Вид:</div>
-            <div class="form-control"><input type="text" id="species" placeholder="Человек, волшебник, вампир, эльф..."></div>
-        </div>
-
-        <div class="form-group">
-            <div class="form-label">🚻 Пол:</div>
-            <div class="form-control"><input type="text" id="gender" placeholder="Женский, мужской, небинарный..."></div>
-        </div>
-
-        <div class="form-group">
-            <div class="form-label">🏢 Род занятий:</div>
-            <div class="form-control"><input type="text" id="job" placeholder="Студент, детектив, пират..."></div>
-        </div>
-    </div>
-
-    <div id="tab2" class="tab-content">
-        <div class="form-group">
-            <div class="form-label">🌀 Характер:</div>
-            <div class="form-control"><input type="text" id="personality" placeholder="Вспыльчивый, меланхоличный, добрый..."></div>
-        </div>
-
-        <div class="form-group">
-            <div class="form-label">💪 Преимущества:</div>
-            <div class="form-control"><textarea id="strengths" placeholder="Храбрость, ум, верность..."></textarea></div>
-        </div>
-
-        <div class="form-group">
-            <div class="form-label">⚠️ Слабость:</div>
-            <div class="form-control"><textarea id="weaknesses" placeholder="Доверчивость, вспыльчивость..."></textarea></div>
-        </div>
-    </div>
-
-    <div id="tab3" class="tab-content">
-        <div class="form-group">
-            <div class="form-label">📖 Краткая история:</div>
-            <div class="form-control"><textarea id="backstory" placeholder="2-3 предложения о прошлом персонажа..."></textarea></div>
-        </div>
-
-        <div class="form-group">
-            <div class="form-label">👨‍👩‍👧‍👦 Близкие:</div>
-            <div class="form-control"><textarea id="family" placeholder="Семья, друзья, важные люди..."></textarea></div>
-        </div>
-
-        <div class="form-group">
-            <div class="form-label">✨ Способности / навыки:</div>
-            <div class="form-control"><textarea id="skills" placeholder="Магия, стрельба из лука, исцеление..."></textarea></div>
-        </div>
-
-        <div class="form-group">
-            <div class="form-label">💬 Цитата:</div>
-            <div class="form-control"><textarea id="quote" placeholder="«Я не просил меня спасать»"></textarea></div>
-        </div>
-    </div>
-
-    <div id="tab4" class="tab-content">
-        <div class="slots-panel">
-            <div class="slots-title">💾 СОХРАНЁННЫЕ ПЕРСОНАЖИ</div>
-            <div class="slots-buttons" id="slotsContainer">
-                <button class="slot-btn" data-slot="0">📁 Слот 1</button>
-                <button class="slot-btn" data-slot="1">📁 Слот 2</button>
-                <button class="slot-btn" data-slot="2">📁 Слот 3</button>
-                <button class="slot-btn" data-slot="3">📁 Слот 4</button>
-                <button class="slot-btn" data-slot="4">📁 Слот 5</button>
-            </div>
-            <div style="margin-top: 10px; font-size: 0.7rem; color: #88aaff;">
-                💡 Нажмите на слот, выберите действие
-            </div>
-        </div>
-        
-        <button class="export-btn" id="exportDossierBtn">🖼️ ЭКСПОРТ В КАРТИНКУ 🖼️</button>
-        <button class="export-btn txt-btn" id="exportTxtBtn">📄 СКАЧАТЬ КАК .TXT (только текст)</button>
-        <button class="export-btn doc-btn" id="exportDocBtn">📘 СКАЧАТЬ КАК .DOC (с фото)</button>
-        <button class="reset-btn" id="resetBtn">🗑️ ОЧИСТИТЬ ВСЕ ПОЛЯ 🗑️</button>
-    </div>
-
-    <footer>vk.com/fickbuhta — создай своего персонажа ✨</footer>
-</div>
-
-<script>
-    // ========== PWA: УСТАНОВКА ==========
-    let deferredPrompt = null;
-    const installBanner = document.getElementById('installBanner');
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installBanner.classList.add('show');
-    });
-
-    installBanner.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const result = await deferredPrompt.userChoice;
-            if (result.outcome === 'accepted') {
-                installBanner.classList.remove('show');
-            }
-            deferredPrompt = null;
-        }
-    });
-
-    window.addEventListener('appinstalled', () => {
-        installBanner.classList.remove('show');
-    });
-
-    // ========== ОСНОВНОЙ КОД ==========
-    const photoUpload = document.getElementById('photoUpload');
-    const uploadBtn = document.getElementById('uploadPhotoBtn');
-    const photoPreview = document.getElementById('photoPreview');
-    let photoDataUrl = null;
-
-    uploadBtn.addEventListener('click', () => photoUpload.click());
-    photoUpload.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                photoDataUrl = ev.target.result;
-                photoPreview.innerHTML = `<img src="${photoDataUrl}" alt="фото">`;
-                saveToLocalStorage();
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    function getCurrentCharacterData() {
-        return {
-            name: document.getElementById('name').value,
-            age: document.getElementById('age').value,
-            species: document.getElementById('species').value,
-            gender: document.getElementById('gender').value,
-            job: document.getElementById('job').value,
-            personality: document.getElementById('personality').value,
-            strengths: document.getElementById('strengths').value,
-            weaknesses: document.getElementById('weaknesses').value,
-            backstory: document.getElementById('backstory').value,
-            family: document.getElementById('family').value,
-            skills: document.getElementById('skills').value,
-            quote: document.getElementById('quote').value,
-            photo: photoDataUrl
-        };
-    }
-
-    function loadCharacterData(data) {
-        document.getElementById('name').value = data.name || '';
-        document.getElementById('age').value = data.age || '';
-        document.getElementById('species').value = data.species || '';
-        document.getElementById('gender').value = data.gender || '';
-        document.getElementById('job').value = data.job || '';
-        document.getElementById('personality').value = data.personality || '';
-        document.getElementById('strengths').value = data.strengths || '';
-        document.getElementById('weaknesses').value = data.weaknesses || '';
-        document.getElementById('backstory').value = data.backstory || '';
-        document.getElementById('family').value = data.family || '';
-        document.getElementById('skills').value = data.skills || '';
-        document.getElementById('quote').value = data.quote || '';
-        if (data.photo) {
-            photoDataUrl = data.photo;
-            photoPreview.innerHTML = `<img src="${photoDataUrl}" alt="фото">`;
-        } else {
-            photoDataUrl = null;
-            photoPreview.innerHTML = '<div class="no-photo">📷<br>нет фото</div>';
-        }
-        saveToLocalStorage();
-    }
-
-    function saveToLocalStorage() {
-        const data = getCurrentCharacterData();
-        localStorage.setItem('fickbuhta_dossier_current', JSON.stringify(data));
-    }
-
-    function loadFromLocalStorage() {
-        const saved = localStorage.getItem('fickbuhta_dossier_current');
-        if (!saved) return;
-        try {
-            const data = JSON.parse(saved);
-            loadCharacterData(data);
-        } catch(e) {}
-    }
-
-    // РАБОТА СО СЛОТАМИ
-    function saveToSlot(slotIndex) {
-        const data = getCurrentCharacterData();
-        const slots = JSON.parse(localStorage.getItem('fickbuhta_slots') || '{}');
-        slots[slotIndex] = data;
-        localStorage.setItem('fickbuhta_slots', JSON.stringify(slots));
-        updateSlotButtons();
-        alert(`✅ Персонаж сохранён в слот ${slotIndex + 1}`);
-    }
-
-    function loadFromSlot(slotIndex) {
-        const slots = JSON.parse(localStorage.getItem('fickbuhta_slots') || '{}');
-        const data = slots[slotIndex];
-        if (!data) {
-            alert(`❌ Слот ${slotIndex + 1} пуст. Сначала сохраните персонажа.`);
-            return;
-        }
-        loadCharacterData(data);
-        alert(`📂 Персонаж загружен из слота ${slotIndex + 1}`);
-    }
-
-    function updateSlotButtons() {
-        const slots = JSON.parse(localStorage.getItem('fickbuhta_slots') || '{}');
-        for (let i = 0; i < 5; i++) {
-            const btn = document.querySelector(`.slot-btn[data-slot="${i}"]`);
-            if (btn) {
-                if (slots[i]) {
-                    const name = slots[i].name || 'без имени';
-                    btn.innerHTML = `⭐ СЛОТ ${i+1}: ${name.substring(0, 15)}`;
-                    btn.classList.add('saved');
-                } else {
-                    btn.innerHTML = `📁 Слот ${i+1} (пуст)`;
-                    btn.classList.remove('saved');
-                }
-            }
-        }
-    }
-
-    document.querySelectorAll('.slot-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const slot = parseInt(btn.getAttribute('data-slot'));
-            const action = confirm(`Слот ${slot+1}: нажмите «ОК» чтобы СОХРАНИТЬ, «Отмена» чтобы ЗАГРУЗИТЬ`);
-            if (action) {
-                saveToSlot(slot);
-            } else {
-                loadFromSlot(slot);
-            }
-        });
-    });
-
-    document.getElementById('resetBtn').addEventListener('click', () => {
-        if (confirm('Очистить все поля? Сохранённые персонажи в слотах останутся.')) {
-            document.getElementById('name').value = '';
-            document.getElementById('age').value = '';
-            document.getElementById('species').value = '';
-            document.getElementById('gender').value = '';
-            document.getElementById('job').value = '';
-            document.getElementById('personality').value = '';
-            document.getElementById('strengths').value = '';
-            document.getElementById('weaknesses').value = '';
-            document.getElementById('backstory').value = '';
-            document.getElementById('family').value = '';
-            document.getElementById('skills').value = '';
-            document.getElementById('quote').value = '';
-            photoDataUrl = null;
-            photoPreview.innerHTML = '<div class="no-photo">📷<br>нет фото</div>';
-            saveToLocalStorage();
-            alert('🧹 Все поля очищены');
-        }
-    });
-
-    // Экспорт в TXT (только текст)
-    document.getElementById('exportTxtBtn').addEventListener('click', () => {
-        const data = getCurrentCharacterData();
-        const content = `========================================
-⚓ ФИКБУХТА — ЛИЧНОЕ ДЕЛО ПЕРСОНАЖА
-========================================
-
-🌟 ИМЯ: ${data.name || '—'}
-📅 ВОЗРАСТ: ${data.age || '—'}
-🧬 ВИД: ${data.species || '—'}
-🚻 ПОЛ: ${data.gender || '—'}
-🏢 ЗАНЯТИЕ: ${data.job || '—'}
-
-🎭 ХАРАКТЕР: ${data.personality || '—'}
-💪 ПРЕИМУЩЕСТВА: ${data.strengths || '—'}
-⚠️ СЛАБОСТЬ: ${data.weaknesses || '—'}
-
-👨‍👩‍👧‍👦 БЛИЗКИЕ: ${data.family || '—'}
-✨ СПОСОБНОСТИ: ${data.skills || '—'}
-
-💬 ЦИТАТА: ${data.quote || '—'}
-
-📖 ИСТОРИЯ:
-${data.backstory || '—'}
-
-========================================
-📷 ФОТО: сохранено в PNG и DOC
-========================================
-vk.com/fickbuhta ✦ создай своего персонажа
-========================================`;
-        
-        const blob = new Blob([content], {type: 'text/plain;charset=utf-8'});
-        const link = document.createElement('a');
-        const fileName = `персонаж_${(data.name || 'безымянный').replace(/[^a-zа-я]/gi, '_')}.txt`;
-        link.download = fileName;
-        link.href = URL.createObjectURL(blob);
-        link.click();
-        URL.revokeObjectURL(link.href);
-        alert('📄 Текстовый файл сохранён!');
-    });
-
-    // Экспорт в DOC (с фото, как PNG карточка)
-    document.getElementById('exportDocBtn').addEventListener('click', () => {
-        const data = getCurrentCharacterData();
-        
-        let photoHtml = '';
-        if (photoDataUrl) {
-            photoHtml = `<td style="width:160px; vertical-align:top; padding-right:25px;">
-                            <img src="${photoDataUrl}" style="width:150px; height:150px; object-fit:cover; border:3px solid #c4a26a; border-radius:12px;">
-                        </td>`;
-        } else {
-            photoHtml = `<td style="width:160px; vertical-align:top; padding-right:25px;">
-                            <div style="width:150px; height:150px; background:#e8d8b0; border:2px dashed #c4a26a; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#a08050; font-size:32px;">📷</div>
-                        </td>`;
-        }
-        
-        const docHtml = `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Личное дело персонажа — Фикбухта</title>
-    <style>
-        body {
-            font-family: 'Georgia', 'Times New Roman', serif;
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 30px;
-            background: #f5e6c8;
-            color: #1a0f08;
-        }
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #c4a26a;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-        }
-        h1 {
-            color: #5c3a1a;
-            font-size: 28px;
-            margin: 0;
-        }
-        .sub {
-            color: #8a6a3a;
-            font-style: italic;
-        }
-        .photo-section {
-            margin-bottom: 25px;
-        }
-        .info-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .info-table td {
-            padding: 6px 0;
-            vertical-align: top;
-        }
-        .label {
-            font-weight: bold;
-            color: #5c3a1a;
-            width: 130px;
-        }
-        .section {
-            margin: 20px 0;
-            padding-top: 12px;
-            border-top: 1px solid #d4b88c;
-        }
-        .section-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #5c3a1a;
-            margin-bottom: 10px;
-        }
-        .quote {
-            font-style: italic;
-            font-size: 18px;
-            color: #3a2410;
-            border-left: 3px solid #c4a26a;
-            padding-left: 15px;
-            margin: 15px 0;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 15px;
-            border-top: 1px solid #d4b88c;
-            font-size: 12px;
-            color: #8a6a3a;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>⚓ ФИКБУХТА ⚓</h1>
-        <div class="sub">личное дело персонажа</div>
-    </div>
-    
-    <table class="photo-section" style="width:100%;">
-        <tr>
-            ${photoHtml}
-            <td style="vertical-align:top;">
-                <table class="info-table" style="width:100%;">
-                    <tr><td class="label">🌟 ИМЯ:</td><td>${escapeDoc(data.name || '—')}</td></tr>
-                    <tr><td class="label">📅 ВОЗРАСТ:</td><td>${escapeDoc(data.age || '—')}</td></tr>
-                    <tr><td class="label">🧬 ВИД:</td><td>${escapeDoc(data.species || '—')}</td></tr>
-                    <tr><td class="label">🚻 ПОЛ:</td><td>${escapeDoc(data.gender || '—')}</td></tr>
-                    <tr><td class="label">🏢 ЗАНЯТИЕ:</td><td>${escapeDoc(data.job || '—')}</td></tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-    
-    <div class="section">
-        <div class="section-title">🎭 ХАРАКТЕР И ЛИЧНОСТЬ</div>
-        <table class="info-table" style="width:100%;">
-            <tr><td class="label">🌀 Характер:</td><td>${escapeDoc(data.personality || '—')}</td></tr>
-            <tr><td class="label">💪 Преимущества:</td><td>${escapeDoc(data.strengths || '—')}</td></tr>
-            <tr><td class="label">⚠️ Слабость:</td><td>${escapeDoc(data.weaknesses || '—')}</td></tr>
-        </table>
-    </div>
-    
-    <div class="section">
-        <div class="section-title">👨‍👩‍👧‍👦 БЛИЗКИЕ</div>
-        <div>${escapeDoc(data.family || '—')}</div>
-    </div>
-    
-    <div class="section">
-        <div class="section-title">✨ СПОСОБНОСТИ</div>
-        <div>${escapeDoc(data.skills || '—')}</div>
-    </div>
-    
-    <div class="quote">${escapeDoc(data.quote || '—')}</div>
-    
-    <div class="section">
-        <div class="section-title">📖 ИСТОРИЯ</div>
-        <div style="line-height:1.4;">${escapeDoc(data.backstory || '—')}</div>
-    </div>
-    
-    <div class="footer">
-        vk.com/fickbuhta ✦ создай своего персонажа ✦ #челлендж_фикбухта
-    </div>
-</body>
-</html>`;
-        
-        const blob = new Blob([docHtml], {type: 'application/msword'});
-        const link = document.createElement('a');
-        const fileName = `персонаж_${(data.name || 'безымянный').replace(/[^a-zа-я]/gi, '_')}.doc`;
-        link.download = fileName;
-        link.href = URL.createObjectURL(blob);
-        link.click();
-        URL.revokeObjectURL(link.href);
-        alert('📘 DOC-файл сохранён! Откройте в Microsoft Word или Google Docs.');
-    });
-
-    function escapeDoc(str) {
-        if (!str) return '—';
-        return str.replace(/[&<>]/g, function(m){
-            if(m==='&') return '&amp;'; 
-            if(m==='<') return '&lt;'; 
-            if(m==='>') return '&gt;'; 
-            return m;
-        }).replace(/\n/g, '<br>');
-    }
-
-    const allInputs = document.querySelectorAll('input, textarea');
-    allInputs.forEach(el => el.addEventListener('input', saveToLocalStorage));
-
-    // Вкладки
-    const tabsBtns = document.querySelectorAll('.tab-btn');
-    const tabsContents = document.querySelectorAll('.tab-content');
-    tabsBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tabId = btn.getAttribute('data-tab');
-            tabsBtns.forEach(b => b.classList.remove('active'));
-            tabsContents.forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
-        });
-    });
-
-    // Экспорт в картинку (PNG)
-    document.getElementById('exportDossierBtn').addEventListener('click', async () => {
-        const btn = document.getElementById('exportDossierBtn');
-        const originalText = btn.textContent;
-        btn.textContent = '⏳ СОЗДАЮ КАРТИНКУ... ⏳';
-        btn.disabled = true;
-
-        try {
-            const data = getCurrentCharacterData();
-            const name = data.name || '—';
-            const age = data.age || '—';
-            const species = data.species || '—';
-            const gender = data.gender || '—';
-            const job = data.job || '—';
-            const personality = data.personality || '—';
-            const strengths = data.strengths || '—';
-            const weaknesses = data.weaknesses || '—';
-            const backstory = data.backstory || '—';
-            const family = data.family || '—';
-            const skills = data.skills || '—';
-            const quote = data.quote || '—';
-
-            const exportDiv = document.createElement('div');
-            exportDiv.style.width = '800px';
-            exportDiv.style.minHeight = '800px';
-            exportDiv.style.height = 'auto';
-            exportDiv.style.background = '#f5e6c8';
-            exportDiv.style.backgroundImage = 'radial-gradient(circle at 10% 20%, rgba(200,170,120,0.15) 2%, transparent 2.5%), radial-gradient(circle at 80% 70%, rgba(160,120,70,0.1) 1.5%, transparent 2%)';
-            exportDiv.style.backgroundSize = '40px 40px, 35px 35px';
-            exportDiv.style.padding = '30px';
-            exportDiv.style.position = 'absolute';
-            exportDiv.style.top = '-9999px';
-            exportDiv.style.left = '-9999px';
-            exportDiv.style.fontFamily = 'Caveat, "Segoe Script", cursive';
-            exportDiv.style.color = '#1a0f08';
-            exportDiv.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)';
-            exportDiv.style.border = '1px solid #c4a26a';
-            exportDiv.style.boxSizing = 'border-box';
-            
-            let photoHtml = '';
-            if (photoDataUrl) {
-                photoHtml = `<div style="width:180px; height:180px; margin-top:5px;"><img src="${photoDataUrl}" style="width:100%; height:100%; object-fit:cover; border:4px solid #c4a26a; border-radius:16px; box-shadow: 3px 3px 10px rgba(0,0,0,0.2);"></div>`;
-            } else {
-                photoHtml = `<div style="width:180px; height:180px; background:#e8d8b0; border:3px dashed #c4a26a; border-radius:16px; display:flex; align-items:center; justify-content:center; color:#a08050; font-size:32px;">📷</div>`;
-            }
-
-            exportDiv.innerHTML = `
-                <div style="position:relative; display:flex; flex-direction:column; gap:8px;">
-                    <div style="position:absolute; top:0; right:0; width:60px; height:60px;">
-                        <svg viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="45" fill="#8B1A1A" stroke="#5C0E0E" stroke-width="2"/>
-                            <circle cx="50" cy="50" r="38" fill="none" stroke="#C14444" stroke-width="1.5" stroke-dasharray="4 3"/>
-                            <text x="50" y="55" text-anchor="middle" fill="#F0D0A0" font-size="22" font-family="Georgia, serif" font-weight="bold">⚓</text>
-                            <text x="50" y="77" text-anchor="middle" fill="#F0D0A0" font-size="10" font-family="Georgia, serif">ФИК</text>
-                        </svg>
-                    </div>
-                    
-                    <div style="text-align:center; margin-bottom:15px;">
-                        <span style="font-size:36px; font-weight:bold; letter-spacing:5px; color:#5c3a1a;">⚓ ФИКБУХТА ⚓</span>
-                        <div style="font-size:16px; color:#8a6a3a;">личное дело персонажа</div>
-                    </div>
-                    
-                    <div style="display:flex; gap:30px; margin-bottom:20px; flex-wrap:wrap;">
-                        ${photoHtml}
-                        <div style="flex:1; min-width:220px;">
-                            <div style="display:grid; grid-template-columns:1fr 2fr; gap:10px 20px; font-size:20px;">
-                                <b>▸ ИМЯ:</b> <span>${escapeHtml(name)}</span>
-                                <b>▸ ВОЗРАСТ:</b> <span>${escapeHtml(age)}</span>
-                                <b>▸ ВИД:</b> <span>${escapeHtml(species)}</span>
-                                <b>▸ ПОЛ:</b> <span>${escapeHtml(gender)}</span>
-                                <b>▸ ЗАНЯТИЕ:</b> <span>${escapeHtml(job)}</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="font-size:19px;">
-                        <div style="margin-bottom:15px;"><b>✦ ХАРАКТЕР:</b> ${escapeHtml(personality)}</div>
-                        <div style="margin-bottom:15px;"><b>💪 ПРЕИМУЩЕСТВА:</b> ${escapeHtml(strengths)}</div>
-                        <div style="margin-bottom:15px;"><b>⚠️ СЛАБОСТЬ:</b> ${escapeHtml(weaknesses)}</div>
-                        <div style="margin-bottom:15px;"><b>👨‍👩‍👧‍👦 БЛИЗКИЕ:</b> ${escapeHtml(family)}</div>
-                        <div style="margin-bottom:15px;"><b>✨ СПОСОБНОСТИ:</b> ${escapeHtml(skills)}</div>
-                        <div style="margin:20px 0 20px 0; font-style:italic; font-size:22px; color:#3a2410; border-left:4px solid #c4a26a; padding-left:18px;">«${escapeHtml(quote)}»</div>
-                        <div style="margin-top:15px; padding-top:15px; border-top:2px solid #d4b88c; word-wrap:break-word; white-space:normal;">
-                            <b>📖 ИСТОРИЯ:</b><br>
-                            <span style="font-size:18px; line-height:1.45; display:inline-block; width:100%;">${escapeHtml(backstory)}</span>
-                        </div>
-                    </div>
-                    
-                    <div style="text-align:center; margin-top:25px; padding-top:15px; border-top:1px solid #d4b88c; font-size:16px; color:#8a6a3a;">
-                        vk.com/fickbuhta ✦ создай своего персонажа ✦ #челлендж_фикбухта
+        <div class="card-grid">
+            <div class="photo-cell">
+                <div class="photo-container" id="photoContainer">
+                    <div class="no-photo">
+                        📷
+                        <span>загрузите фото</span>
                     </div>
                 </div>
-            `;
-            
-            document.body.appendChild(exportDiv);
-            await new Promise(r => setTimeout(r, 150));
-            
-            const actualHeight = exportDiv.offsetHeight;
-            const canvas = await html2canvas(exportDiv, { 
-                scale: 2.5, 
-                backgroundColor: '#f5e6c8',
-                useCORS: true,
-                logging: false,
-                height: actualHeight,
-                windowHeight: actualHeight
-            });
-            document.body.removeChild(exportDiv);
-            
-            const link = document.createElement('a');
-            const safeName = name.replace(/[^a-zа-я0-9]/gi, '_').substring(0, 30) || 'personazh';
-            link.download = `dossier_${safeName}.png`;
-            link.href = canvas.toDataURL();
-            link.click();
-            alert('🖼️ Карточка сохранена!');
-        } catch(e) {
-            console.error(e);
-            alert('Ошибка: ' + e.message);
-        } finally {
-            btn.textContent = originalText;
-            btn.disabled = false;
+                <div class="photo-overlay">
+                    <input type="file" id="photoUpload" accept="image/*" style="display:none">
+                    <button id="uploadPhotoBtn">📷 Загрузить</button>
+                    <button id="cropPhotoBtn" style="display:none;">✂️ Обрезать</button>
+                    <button class="remove-btn" id="removePhotoBtn" style="display:none;">✕ Удалить</button>
+                </div>
+            </div>
+
+            <div class="fields-cell">
+                <!-- ЛИЧНОЕ -->
+                <div class="section-title">▸ ЛИЧНОЕ</div>
+                
+                <div class="field-row">
+                    <div class="label-cell">Имя</div>
+                    <div class="form-control"><input type="text" id="name" placeholder="Имя персонажа"></div>
+                </div>
+                <div class="field-row">
+                    <div class="label-cell">Возраст</div>
+                    <div class="form-control"><input type="text" id="age" placeholder="17, 243, бессмертен"></div>
+                </div>
+                <div class="field-row">
+                    <div class="label-cell">Вид</div>
+                    <div class="form-control"><input type="text" id="species" placeholder="Человек, эльф, вампир..."></div>
+                </div>
+                <div class="field-row">
+                    <div class="label-cell">Пол</div>
+                    <div class="form-control"><input type="text" id="gender" placeholder="М, Ж, небинарный..."></div>
+                </div>
+                <div class="field-row">
+                    <div class="label-cell">Занятие</div>
+                    <div class="form-control"><input type="text" id="job" placeholder="Пират, детектив, маг..."></div>
+                </div>
+
+                <!-- ХАРАКТЕР -->
+                <div class="section-title">▸ ХАРАКТЕР</div>
+                
+                <div class="field-row">
+                    <div class="label-cell">Характер</div>
+                    <div class="form-control"><input type="text" id="personality" placeholder="Вспыльчивый, меланхоличный..."></div>
+                </div>
+                <div class="field-row">
+                    <div class="label-cell">Преимущества</div>
+                    <div class="form-control"><textarea id="strengths" placeholder="Храбрость, ум, верность..." style="min-height:40px;"></textarea></div>
+                </div>
+                <div class="field-row">
+                    <div class="label-cell">Слабость</div>
+                    <div class="form-control"><textarea id="weaknesses" placeholder="Доверчивость, гордыня..." style="min-height:40px;"></textarea></div>
+                </div>
+
+                <!-- СПОСОБНОСТИ — без label -->
+                <div class="section-title">▸ СПОСОБНОСТИ</div>
+                <div class="form-control" style="margin-top: 4px;"><textarea id="skills" placeholder="Особые навыки, таланты..." style="min-height:40px;"></textarea></div>
+
+                <!-- БЛИЗКИЕ — без label -->
+                <div class="section-title">▸ БЛИЗКИЕ</div>
+                <div class="form-control" style="margin-top: 4px;"><textarea id="family" placeholder="Семья, друзья, важные люди..." style="min-height:40px;"></textarea></div>
+
+                <!-- ЦИТАТА — без label -->
+                <div class="section-title">▸ ЦИТАТА</div>
+                <div class="form-control" style="margin-top: 4px;"><textarea id="quote" placeholder="«Я не просил меня спасать»" style="min-height:40px;"></textarea></div>
+
+                <!-- ИСТОРИЯ — без label -->
+                <div class="section-title">▸ ИСТОРИЯ</div>
+                <div class="form-control" style="margin-top: 4px;"><textarea id="backstory" placeholder="История персонажа..." style="min-height:60px;"></textarea></div>
+            </div>
+        </div>
+
+        <div class="slots-panel">
+            <div class="slots-title">💾 СОХРАНЁННЫЕ ПЕРСОНАЖИ</div>
+            <div id="slotsContainer"></div>
+            <div style="margin-top: 6px; font-size: 0.7rem; opacity:0.4; letter-spacing:0.5px;">
+                💡 Нажмите «Сохранить» чтобы записать персонажа, «Открыть» чтобы загрузить
+            </div>
+        </div>
+
+        <div class="import-export-row">
+            <button class="ie-btn export-json" id="exportJsonBtn">📤 Экспорт .json</button>
+            <button class="ie-btn import-json" id="importJsonBtn">📥 Импорт .json</button>
+            <input type="file" id="jsonUpload" accept=".json" style="display:none">
+        </div>
+
+        <button class="export-btn" id="exportDossierBtn">🖼️ ЭКСПОРТ В КАРТИНКУ</button>
+        <button class="export-btn txt-btn" id="exportTxtBtn">📄 СКАЧАТЬ .TXT</button>
+        <button class="export-btn doc-btn" id="exportDocBtn">📘 СКАЧАТЬ .DOC</button>
+        <button class="reset-btn" id="resetBtn">🗑️ ОЧИСТИТЬ ВСЕ ПОЛЯ</button>
+
+        <div class="footer">vk.com/fickbuhta ✦ создай своего персонажа ✦ #челлендж_фикбухта</div>
+    </div>
+
+    <div class="crop-modal" id="cropModal">
+        <div class="crop-wrapper">
+            <img id="cropImage" src="" alt="Обрезка">
+        </div>
+        <div class="crop-controls">
+            <button class="crop-confirm" id="cropConfirm">✅ Применить</button>
+            <button class="crop-cancel" id="cropCancel">❌ Отмена</button>
+        </div>
+        <div class="crop-hint">✦ Перемещайте и масштабируйте фото для идеального кадра ✦</div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 1. ФОТО
+        // ============================================================
+        const photoUpload = document.getElementById('photoUpload');
+        const uploadBtn = document.getElementById('uploadPhotoBtn');
+        const cropPhotoBtn = document.getElementById('cropPhotoBtn');
+        const removeBtn = document.getElementById('removePhotoBtn');
+        const photoContainer = document.getElementById('photoContainer');
+        const cropModal = document.getElementById('cropModal');
+        const cropImage = document.getElementById('cropImage');
+        const cropConfirm = document.getElementById('cropConfirm');
+        const cropCancel = document.getElementById('cropCancel');
+
+        let photoDataUrl = null;
+        let cropper = null;
+        let isCropping = false;
+
+        function updatePhotoDisplay() {
+            if (photoDataUrl) {
+                photoContainer.innerHTML = `<img src="${photoDataUrl}" alt="фото персонажа">`;
+                cropPhotoBtn.style.display = 'inline-block';
+                removeBtn.style.display = 'inline-block';
+            } else {
+                photoContainer.innerHTML = `<div class="no-photo">📷<span>загрузите фото</span></div>`;
+                cropPhotoBtn.style.display = 'none';
+                removeBtn.style.display = 'none';
+            }
+            saveToLocalStorage();
         }
-    });
 
-    function escapeHtml(str) { 
-        if (!str) return '—';
-        return str.replace(/[&<>]/g, function(m){
-            if(m==='&') return '&amp;'; 
-            if(m==='<') return '&lt;'; 
-            if(m==='>') return '&gt;'; 
-            return m;
-        }).replace(/\n/g, '<br>');
-    }
-
-    function createStars() {
-        for (let i = 0; i < 80; i++) {
-            let star = document.createElement('div');
-            star.classList.add('star');
-            star.style.left = Math.random() * 100 + '%';
-            star.style.top = Math.random() * 100 + '%';
-            star.style.animationDelay = Math.random() * 6 + 's';
-            star.style.animationDuration = Math.random() * 4 + 2 + 's';
-            document.body.appendChild(star);
+        function openCropper(imageSrc) {
+            cropImage.src = imageSrc;
+            cropModal.classList.add('active');
+            isCropping = true;
+            
+            setTimeout(() => {
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(cropImage, {
+                    aspectRatio: 2 / 3,
+                    viewMode: 1,
+                    dragMode: 'move',
+                    autoCropArea: 0.9,
+                    restore: false,
+                    guides: true,
+                    center: true,
+                    highlight: false,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    toggleDragModeOnDblclick: false,
+                    background: false,
+                    responsive: true,
+                    minCropBoxWidth: 100,
+                    minCropBoxHeight: 150,
+                });
+            }, 150);
         }
-    }
-    createStars();
-    loadFromLocalStorage();
-    updateSlotButtons();
-    saveToLocalStorage();
 
-    // ========== PWA: регистрация сервис-воркера ==========
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('✅ Service Worker зарегистрирован'))
-                .catch(err => console.log('❌ Ошибка SW:', err));
+        uploadBtn.addEventListener('click', () => photoUpload.click());
+
+        photoUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    openCropper(ev.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+            photoUpload.value = '';
         });
-    }
+
+        cropPhotoBtn.addEventListener('click', () => {
+            if (photoDataUrl) {
+                openCropper(photoDataUrl);
+            }
+        });
+
+        cropConfirm.addEventListener('click', () => {
+            if (cropper) {
+                const canvas = cropper.getCroppedCanvas({
+                    width: 600,
+                    height: 900,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high',
+                });
+                photoDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                updatePhotoDisplay();
+                cropper.destroy();
+                cropper = null;
+                cropModal.classList.remove('active');
+                isCropping = false;
+            }
+        });
+
+        cropCancel.addEventListener('click', () => {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            cropModal.classList.remove('active');
+            isCropping = false;
+        });
+
+        cropModal.addEventListener('click', (e) => {
+            if (e.target === cropModal && isCropping) {
+                cropModal.style.animation = 'none';
+                setTimeout(() => {
+                    cropModal.style.animation = 'shakeModal 0.3s ease';
+                }, 10);
+            }
+        });
+
+        removeBtn.addEventListener('click', () => {
+            if (photoDataUrl) {
+                photoDataUrl = null;
+                updatePhotoDisplay();
+            }
+        });
+
+        // ============================================================
+        // 2. ДАННЫЕ
+        // ============================================================
+        function getCurrentCharacterData() {
+            return {
+                name: document.getElementById('name').value,
+                age: document.getElementById('age').value,
+                species: document.getElementById('species').value,
+                gender: document.getElementById('gender').value,
+                job: document.getElementById('job').value,
+                personality: document.getElementById('personality').value,
+                strengths: document.getElementById('strengths').value,
+                weaknesses: document.getElementById('weaknesses').value,
+                backstory: document.getElementById('backstory').value,
+                family: document.getElementById('family').value,
+                skills: document.getElementById('skills').value,
+                quote: document.getElementById('quote').value,
+                photo: photoDataUrl
+            };
+        }
+
+        function loadCharacterData(data) {
+            document.getElementById('name').value = data.name || '';
+            document.getElementById('age').value = data.age || '';
+            document.getElementById('species').value = data.species || '';
+            document.getElementById('gender').value = data.gender || '';
+            document.getElementById('job').value = data.job || '';
+            document.getElementById('personality').value = data.personality || '';
+            document.getElementById('strengths').value = data.strengths || '';
+            document.getElementById('weaknesses').value = data.weaknesses || '';
+            document.getElementById('backstory').value = data.backstory || '';
+            document.getElementById('family').value = data.family || '';
+            document.getElementById('skills').value = data.skills || '';
+            document.getElementById('quote').value = data.quote || '';
+            if (data.photo) {
+                photoDataUrl = data.photo;
+            } else {
+                photoDataUrl = null;
+            }
+            updatePhotoDisplay();
+            saveToLocalStorage();
+        }
+
+        function saveToLocalStorage() {
+            const data = getCurrentCharacterData();
+            localStorage.setItem('fickbuhta_card_current', JSON.stringify(data));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('fickbuhta_card_current');
+            if (!saved) return;
+            try {
+                const data = JSON.parse(saved);
+                loadCharacterData(data);
+            } catch (e) {}
+        }
+
+        document.querySelectorAll('input, textarea').forEach(el => {
+            el.addEventListener('input', saveToLocalStorage);
+        });
+
+        // ============================================================
+        // 3. ТЕМЫ
+        // ============================================================
+        const customColors = document.getElementById('customColors');
+        const customBgInput = document.getElementById('customBgColor');
+        const customTextInput = document.getElementById('customTextColor');
+
+        function applyCustomColors(bgColor, textColor) {
+            document.documentElement.style.setProperty('--custom-bg', bgColor);
+            document.documentElement.style.setProperty('--custom-text', textColor);
+            
+            document.body.style.background = bgColor;
+            document.body.style.color = textColor;
+            
+            const container = document.querySelector('.container');
+            if (container) {
+                container.style.background = bgColor + 'dd';
+                container.style.borderColor = textColor + '44';
+            }
+            
+            document.querySelectorAll('.form-control input, .form-control textarea').forEach(el => {
+                el.style.color = textColor;
+                el.style.borderColor = textColor + '33';
+            });
+            
+            document.querySelectorAll('.section-title, .slots-title, .label-cell').forEach(el => {
+                el.style.color = textColor;
+            });
+            
+            document.querySelectorAll('.export-btn, .reset-btn, .slot-btn, .ie-btn').forEach(el => {
+                el.style.color = textColor;
+                el.style.borderColor = textColor + '44';
+            });
+            
+            document.querySelectorAll('.photo-cell .photo-overlay').forEach(el => {
+                el.style.borderColor = textColor + '33';
+            });
+        }
+
+        function setTheme(theme) {
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.querySelector(`.theme-btn[data-theme="${theme}"]`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            if (theme === 'custom') {
+                customColors.style.display = 'flex';
+                applyCustomColors(customBgInput.value, customTextInput.value);
+                localStorage.setItem('fickbuhta_custom_bg', customBgInput.value);
+                localStorage.setItem('fickbuhta_custom_text', customTextInput.value);
+            } else {
+                customColors.style.display = 'none';
+                document.body.style.background = '';
+                document.body.style.color = '';
+                const container = document.querySelector('.container');
+                if (container) {
+                    container.style.background = '';
+                    container.style.borderColor = '';
+                }
+                document.querySelectorAll('.form-control input, .form-control textarea').forEach(el => {
+                    el.style.color = '';
+                    el.style.borderColor = '';
+                });
+                document.querySelectorAll('.section-title, .slots-title, .label-cell').forEach(el => {
+                    el.style.color = '';
+                });
+                document.querySelectorAll('.export-btn, .reset-btn, .slot-btn, .ie-btn').forEach(el => {
+                    el.style.color = '';
+                    el.style.borderColor = '';
+                });
+                document.querySelectorAll('.photo-cell .photo-overlay').forEach(el => {
+                    el.style.borderColor = '';
+                });
+                document.body.className = `theme-${theme}`;
+            }
+            
+            localStorage.setItem('fickbuhta_theme', theme);
+        }
+
+        customBgInput.addEventListener('input', () => {
+            if (document.body.classList.contains('theme-custom')) {
+                applyCustomColors(customBgInput.value, customTextInput.value);
+                localStorage.setItem('fickbuhta_custom_bg', customBgInput.value);
+            }
+        });
+
+        customTextInput.addEventListener('input', () => {
+            if (document.body.classList.contains('theme-custom')) {
+                applyCustomColors(customBgInput.value, customTextInput.value);
+                localStorage.setItem('fickbuhta_custom_text', customTextInput.value);
+            }
+        });
+
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const theme = btn.dataset.theme;
+                if (theme === 'custom') {
+                    document.body.className = 'theme-custom';
+                }
+                setTheme(theme);
+            });
+        });
+
+        const savedTheme = localStorage.getItem('fickbuhta_theme') || 'sapphire';
+        const savedCustomBg = localStorage.getItem('fickbuhta_custom_bg') || '#1a1a2e';
+        const savedCustomText = localStorage.getItem('fickbuhta_custom_text') || '#ffffff';
+        
+        if (savedCustomBg) customBgInput.value = savedCustomBg;
+        if (savedCustomText) customTextInput.value = savedCustomText;
+        
+        setTheme(savedTheme);
+
+        // ============================================================
+        // 4. СЛОТЫ
+        // ============================================================
+        const SLOTS_COUNT = 5;
+
+        function getSlot(index) {
+            try {
+                const key = `fickbuhta_slot_${index}`;
+                const data = localStorage.getItem(key);
+                if (!data) return null;
+                return JSON.parse(data);
+            } catch (e) {
+                console.error(`Ошибка чтения слота ${index}:`, e);
+                return null;
+            }
+        }
+
+        function saveSlot(index, data) {
+            try {
+                const key = `fickbuhta_slot_${index}`;
+                localStorage.setItem(key, JSON.stringify(data));
+                console.log(`Слот ${index + 1} сохранён`);
+                return true;
+            } catch (e) {
+                console.error(`Ошибка сохранения слота ${index}:`, e);
+                return false;
+            }
+        }
+
+        function deleteSlot(index) {
+            try {
+                const key = `fickbuhta_slot_${index}`;
+                localStorage.removeItem(key);
+                console.log(`Слот ${index + 1} удалён`);
+                return true;
+            } catch (e) {
+                console.error(`Ошибка удаления слота ${index}:`, e);
+                return false;
+            }
+        }
+
+        function getAllSlots() {
+            const slots = {};
+            for (let i = 0; i < SLOTS_COUNT; i++) {
+                const data = getSlot(i);
+                if (data) {
+                    slots[i] = data;
+                }
+            }
+            return slots;
+        }
+
+        function renderSlots() {
+            const container = document.getElementById('slotsContainer');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            const slots = getAllSlots();
+
+            for (let i = 0; i < SLOTS_COUNT; i++) {
+                const item = document.createElement('div');
+                item.className = 'slot-item';
+
+                const label = document.createElement('span');
+                label.className = 'slot-label';
+                const hasData = slots[i] && slots[i].name;
+                const nameShort = hasData ? (slots[i].name || 'безымянный').substring(0, 18) : 'пусто';
+                label.textContent = `📁 Слот ${i+1}: ${nameShort}`;
+                item.appendChild(label);
+
+                const btnGroup = document.createElement('div');
+                btnGroup.className = 'slot-btn-group';
+
+                const saveBtn = document.createElement('button');
+                saveBtn.className = 'slot-btn save-btn';
+                saveBtn.textContent = '💾 Сохранить';
+                saveBtn.dataset.slotIndex = i;
+                saveBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const index = parseInt(this.dataset.slotIndex);
+                    const data = getCurrentCharacterData();
+                    
+                    const testString = JSON.stringify(data);
+                    const sizeInMB = new Blob([testString]).size / (1024 * 1024);
+                    console.log(`Размер данных для слота ${index + 1}: ${sizeInMB.toFixed(2)} MB`);
+                    
+                    if (sizeInMB > 4.5) {
+                        if (data.photo) {
+                            const img = new Image();
+                            img.onload = function() {
+                                const canvas = document.createElement('canvas');
+                                const ratio = Math.min(400 / img.width, 600 / img.height);
+                                canvas.width = Math.round(img.width * ratio);
+                                canvas.height = Math.round(img.height * ratio);
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                data.photo = canvas.toDataURL('image/jpeg', 0.7);
+                                if (saveSlot(index, data)) {
+                                    renderSlots();
+                                    alert(`✅ Персонаж сохранён в слот ${index + 1}`);
+                                } else {
+                                    alert('❌ Ошибка при сохранении');
+                                }
+                            };
+                            img.src = data.photo;
+                            return;
+                        }
+                    }
+                    
+                    if (saveSlot(index, data)) {
+                        renderSlots();
+                        alert(`✅ Персонаж сохранён в слот ${index + 1}`);
+                    } else {
+                        alert('❌ Ошибка при сохранении. Попробуйте использовать фото меньшего размера.');
+                    }
+                });
+
+                const loadBtn = document.createElement('button');
+                loadBtn.className = 'slot-btn load-btn';
+                loadBtn.textContent = '📂 Открыть';
+                loadBtn.dataset.slotIndex = i;
+                loadBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const index = parseInt(this.dataset.slotIndex);
+                    const data = getSlot(index);
+                    if (!data) {
+                        alert(`❌ Слот ${index + 1} пуст. Сначала сохраните персонажа.`);
+                        return;
+                    }
+                    loadCharacterData(data);
+                    alert(`📂 Персонаж загружен из слота ${index + 1}`);
+                });
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'slot-btn';
+                deleteBtn.textContent = '🗑️';
+                deleteBtn.style.borderColor = '#ff6b6b';
+                deleteBtn.style.color = '#ff6b6b';
+                deleteBtn.style.fontSize = '0.7rem';
+                deleteBtn.title = 'Удалить слот';
+                deleteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const index = parseInt(this.dataset.slotIndex);
+                    if (confirm(`Удалить персонажа из слота ${index + 1}?`)) {
+                        deleteSlot(index);
+                        renderSlots();
+                        alert(`🗑️ Слот ${index + 1} очищен`);
+                    }
+                });
+                deleteBtn.dataset.slotIndex = i;
+
+                btnGroup.appendChild(saveBtn);
+                btnGroup.appendChild(loadBtn);
+                btnGroup.appendChild(deleteBtn);
+
+                if (hasData) {
+                    const indicator = document.createElement('span');
+                    indicator.className = 'slot-btn saved-indicator';
+                    indicator.textContent = '⭐';
+                    btnGroup.appendChild(indicator);
+                }
+
+                item.appendChild(btnGroup);
+                container.appendChild(item);
+            }
+        }
+
+        // ============================================================
+        // 5. ОЧИСТКА
+        // ============================================================
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (confirm('Очистить все поля? Сохранённые в слотах останутся.')) {
+                document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+                photoDataUrl = null;
+                updatePhotoDisplay();
+                saveToLocalStorage();
+                alert('🧹 Все поля очищены');
+            }
+        });
+
+        // ============================================================
+        // 6. ЭКСПОРТ JSON
+        // ============================================================
+        document.getElementById('exportJsonBtn').addEventListener('click', () => {
+            const data = getCurrentCharacterData();
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const link = document.createElement('a');
+            const name = data.name || 'персонаж';
+            link.download = `${name.replace(/[^a-zа-я]/gi, '_')}_фикбухта.json`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            URL.revokeObjectURL(link.href);
+        });
+
+        // ============================================================
+        // 7. ИМПОРТ JSON
+        // ============================================================
+        const jsonUpload = document.getElementById('jsonUpload');
+        const importBtn = document.getElementById('importJsonBtn');
+
+        importBtn.addEventListener('click', () => jsonUpload.click());
+
+        jsonUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        const data = JSON.parse(ev.target.result);
+                        if (data.name !== undefined) {
+                            loadCharacterData(data);
+                            alert('✅ Персонаж успешно импортирован!');
+                        } else {
+                            alert('❌ Неверный формат файла.');
+                        }
+                    } catch (err) {
+                        alert('❌ Ошибка при чтении файла: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+            jsonUpload.value = '';
+        });
+
+        // ============================================================
+        // 8. ЭКСПОРТ .TXT
+        // ============================================================
+        document.getElementById('exportTxtBtn').addEventListener('click', () => {
+            const d = getCurrentCharacterData();
+            const content =
+                `========================================\n⚓ ФИКБУХТА — КАРТОЧКА ПЕРСОНАЖА\n========================================\n\nИМЯ: ${d.name || '—'}\nВОЗРАСТ: ${d.age || '—'}\nВИД: ${d.species || '—'}\nПОЛ: ${d.gender || '—'}\nЗАНЯТИЕ: ${d.job || '—'}\n\nХАРАКТЕР: ${d.personality || '—'}\nПРЕИМУЩЕСТВА: ${d.strengths || '—'}\nСЛАБОСТЬ: ${d.weaknesses || '—'}\n\nСПОСОБНОСТИ: ${d.skills || '—'}\n\nБЛИЗКИЕ: ${d.family || '—'}\n\nЦИТАТА: ${d.quote || '—'}\n\nИСТОРИЯ:\n${d.backstory || '—'}\n\n========================================\nvk.com/fickbuhta ✦ создай своего персонажа`;
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.download =
+                `персонаж_${(d.name || 'безымянный').replace(/[^a-zа-я]/gi, '_')}.txt`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            URL.revokeObjectURL(link.href);
+        });
+
+        // ============================================================
+        // 9. ЭКСПОРТ .DOC
+        // ============================================================
+        document.getElementById('exportDocBtn').addEventListener('click', () => {
+            const d = getCurrentCharacterData();
+            const isSapphire = document.body.classList.contains('theme-sapphire');
+            const isPearl = document.body.classList.contains('theme-pearl');
+            const isParchment = document.body.classList.contains('theme-parchment');
+            const isCustom = document.body.classList.contains('theme-custom');
+
+            let bgColor, borderColor, titleColor, labelColor, textColor, leftBg;
+            
+            if (isCustom) {
+                bgColor = customBgInput.value;
+                textColor = customTextInput.value;
+                titleColor = textColor;
+                labelColor = textColor;
+                borderColor = textColor + '44';
+                leftBg = bgColor + '80';
+            } else if (isPearl) {
+                bgColor = '#f0ece4';
+                borderColor = 'rgba(26,74,58,0.15)';
+                titleColor = '#1a4a3a';
+                labelColor = '#1a4a3a';
+                textColor = '#1a4a3a';
+                leftBg = '#e8ece4';
+            } else if (isParchment) {
+                bgColor = '#d8c8a8';
+                borderColor = '#8a7a5a';
+                titleColor = '#2a1a0a';
+                labelColor = '#3a2a1a';
+                textColor = '#1a1008';
+                leftBg = '#b8a080';
+            } else {
+                bgColor = '#0a1225';
+                borderColor = 'rgba(212,175,55,0.25)';
+                titleColor = '#D4AF37';
+                labelColor = '#D4AF37';
+                textColor = '#D4AF37';
+                leftBg = '#0a1a2a';
+            }
+
+            let photoHtml = '';
+            if (photoDataUrl) {
+                photoHtml =
+                    `<div style="width:100%;height:100%;background-image:url('${photoDataUrl}');background-size:cover;background-position:center;border-radius:12px;"></div>`;
+            } else {
+                photoHtml = `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:60px;opacity:0.15;">📷</div>`;
+            }
+
+            const docHtml = `<!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8"><title>Карточка персонажа</title>
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+        <style>
+            * { margin:0; padding:0; box-sizing:border-box; }
+            body { font-family: 'Playfair Display', Georgia, serif; max-width: 900px; margin: 40px auto; background: ${bgColor}; color: ${textColor}; border-radius: 30px; overflow: hidden; }
+            .card { display: flex; flex-direction: row; min-height: 600px; }
+            .left { flex: 1; background: ${leftBg}; padding: 20px; display: flex; align-items: center; justify-content: center; min-height: 500px; }
+            .left .photo-wrap { width:100%; height:100%; border-radius:12px; overflow:hidden; }
+            .right { flex: 1; padding: 30px 32px; display: flex; flex-direction: column; gap: 3px; }
+            .right .title { font-size: 26px; font-weight: 700; color: ${titleColor}; border-bottom: 2px solid ${borderColor}; padding-bottom: 10px; margin-bottom: 10px; letter-spacing: 6px; }
+            .right .section-title { font-size: 14px; font-weight: 700; color: ${titleColor}; letter-spacing: 3px; margin-top: 8px; border-bottom: 1px solid ${borderColor}; padding-bottom: 4px; opacity:0.7; }
+            .right .field { display: grid; grid-template-columns: 110px 1fr; gap: 12px; font-size: 14px; padding: 3px 0; }
+            .right .field .lbl { font-weight: 700; color: ${labelColor}; text-align:right; }
+            .right .field .val { word-break: break-word; }
+            .right .quote { font-style: italic; font-size: 17px; border-left: 3px solid ${borderColor}; padding-left: 18px; margin: 6px 0; }
+            .right .history { margin-top: 6px; padding-top: 8px; border-top: 1px solid ${borderColor}; font-size: 13px; }
+            .footer { text-align:center; padding: 15px; font-size:12px; opacity:0.5; border-top:1px solid ${borderColor}; font-style:italic; letter-spacing:1px; }
+</style></head>
+<body>
+    <div class="card">
+        <div class="left"><div class="photo-wrap">${photoHtml}</div></div>
+        <div class="right">
+            <div class="title">⚓ ФИКБУХТА</div>
+            <div class="section-title">▸ ЛИЧНОЕ</div>
+            <div class="field"><span class="lbl">Имя</span><span class="val">${escapeDoc(d.name || '—')}</span></div>
+            <div class="field"><span class="lbl">Возраст</span><span class="val">${escapeDoc(d.age || '—')}</span></div>
+            <div class="field"><span class="lbl">Вид</span><span class="val">${escapeDoc(d.species || '—')}</span></div>
+            <div class="field"><span class="lbl">Пол</span><span class="val">${escapeDoc(d.gender || '—')}</span></div>
+            <div class="field"><span class="lbl">Занятие</span><span class="val">${escapeDoc(d.job || '—')}</span></div>
+            <div class="section-title">▸ ХАРАКТЕР</div>
+            <div class="field"><span class="lbl">Характер</span><span class="val">${escapeDoc(d.personality || '—')}</span></div>
+            <div class="field"><span class="lbl">Преимущества</span><span class="val">${escapeDoc(d.strengths || '—')}</span></div>
+            <div class="field"><span class="lbl">Слабость</span><span class="val">${escapeDoc(d.weaknesses || '—')}</span></div>
+            <div class="section-title">▸ СПОСОБНОСТИ</div>
+            <div class="field" style="display:block; padding-left: 0;"><span class="val">${escapeDoc(d.skills || '—')}</span></div>
+            <div class="section-title">▸ БЛИЗКИЕ</div>
+            <div class="field" style="display:block; padding-left: 0;"><span class="val">${escapeDoc(d.family || '—')}</span></div>
+            <div class="quote">«${escapeDoc(d.quote || '—')}»</div>
+            <div class="history"><b>История:</b> ${escapeDoc(d.backstory || '—')}</div>
+        </div>
+    </div>
+    <div class="footer">vk.com/fickbuhta ✦ создай своего персонажа</div>
+</body></html>`;
+
+const blob = new Blob([docHtml], { type: 'application/msword' });
+const link = document.createElement('a');
+link.download = `персонаж_${(d.name || 'безымянный').replace(/[^a-zа-я]/gi, '_')}.doc`;
+link.href = URL.createObjectURL(blob);
+link.click();
+URL.revokeObjectURL(link.href);
+});
+
+function escapeDoc(str) {
+if (!str) return '—';
+return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' } [m] || m)).replace(/\n/g, '<br>');
+}
+
+// ============================================================
+// 10. ЭКСПОРТ В PNG
+// ============================================================
+document.getElementById('exportDossierBtn').addEventListener('click', async () => {
+const btn = document.getElementById('exportDossierBtn');
+const originalText = btn.textContent;
+btn.textContent = '⏳ СОЗДАЮ КАРТИНКУ...';
+btn.disabled = true;
+
+try {
+const d = getCurrentCharacterData();
+const isSapphire = document.body.classList.contains('theme-sapphire');
+const isPearl = document.body.classList.contains('theme-pearl');
+const isParchment = document.body.classList.contains('theme-parchment');
+const isCustom = document.body.classList.contains('theme-custom');
+
+let bgColor, borderColor, titleColor, labelColor, leftBg;
+            
+if (isCustom) {
+bgColor = customBgInput.value;
+const textColor = customTextInput.value;
+titleColor = textColor;
+labelColor = textColor;
+borderColor = textColor + '44';
+leftBg = bgColor + '80';
+} else if (isPearl) {
+bgColor = '#f0ece4';
+borderColor = 'rgba(26,74,58,0.12)';
+titleColor = '#1a4a3a';
+labelColor = '#1a4a3a';
+leftBg = '#e8ece4';
+} else if (isParchment) {
+bgColor = '#d8c8a8';
+borderColor = '#8a7a5a';
+titleColor = '#2a1a0a';
+labelColor = '#3a2a1a';
+leftBg = '#b8a080';
+} else {
+bgColor = '#0a1225';
+borderColor = 'rgba(212,175,55,0.15)';
+titleColor = '#D4AF37';
+labelColor = '#D4AF37';
+leftBg = '#0a1a2a';
+}
+
+const exportDiv = document.createElement('div');
+exportDiv.style.width = '800px';
+exportDiv.style.minHeight = '700px';
+exportDiv.style.height = 'auto';
+exportDiv.style.background = bgColor;
+exportDiv.style.display = 'flex';
+exportDiv.style.flexDirection = 'row';
+exportDiv.style.borderRadius = '24px';
+exportDiv.style.overflow = 'hidden';
+exportDiv.style.boxShadow = '0 20px 60px rgba(0,0,0,0.6)';
+exportDiv.style.position = 'absolute';
+exportDiv.style.top = '-9999px';
+exportDiv.style.left = '-9999px';
+exportDiv.style.fontFamily = '"Playfair Display", Georgia, serif';
+exportDiv.style.color = isCustom ? customTextInput.value : (isPearl ? '#1a4a3a' : (isParchment ? '#1a1008' : '#D4AF37'));
+
+if (isParchment) {
+exportDiv.style.backgroundImage = 'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23d8c8a8"/><circle cx="20" cy="30" r="1.5" fill="%23b8a080" opacity="0.4"/><circle cx="70" cy="60" r="2" fill="%23b8a080" opacity="0.3"/><circle cx="45" cy="80" r="1.8" fill="%23b8a080" opacity="0.4"/></svg>\')';
+exportDiv.style.backgroundSize = '150px 150px';
+}
+
+const leftHalf = document.createElement('div');
+leftHalf.style.width = '50%';
+leftHalf.style.minHeight = '700px';
+leftHalf.style.background = leftBg;
+leftHalf.style.display = 'flex';
+leftHalf.style.alignItems = 'center';
+leftHalf.style.justifyContent = 'center';
+leftHalf.style.padding = '20px';
+leftHalf.style.position = 'relative';
+leftHalf.style.overflow = 'hidden';
+
+if (photoDataUrl) {
+const photoContainer = document.createElement('div');
+photoContainer.style.width = '100%';
+photoContainer.style.height = '100%';
+photoContainer.style.borderRadius = '12px';
+photoContainer.style.overflow = 'hidden';
+photoContainer.style.backgroundImage = `url('${photoDataUrl}')`;
+photoContainer.style.backgroundSize = 'cover';
+photoContainer.style.backgroundPosition = 'center';
+leftHalf.appendChild(photoContainer);
+} else {
+leftHalf.innerHTML = `<div style="font-size:80px;opacity:0.12;">📷</div>`;
+}
+
+const rightHalf = document.createElement('div');
+rightHalf.style.width = '50%';
+rightHalf.style.padding = '32px 30px';
+rightHalf.style.display = 'flex';
+rightHalf.style.flexDirection = 'column';
+rightHalf.style.gap = '2px';
+rightHalf.style.overflow = 'hidden';
+
+const title = document.createElement('div');
+title.style.fontSize = '26px';
+title.style.fontWeight = '700';
+title.style.color = titleColor;
+title.style.borderBottom = `2px solid ${borderColor}`;
+title.style.paddingBottom = '10px';
+title.style.marginBottom = '10px';
+title.style.letterSpacing = '6px';
+title.textContent = '⚓ ФИКБУХТА';
+rightHalf.appendChild(title);
+
+// Секции — без дублирования
+const sections = [
+{ name: '▸ ЛИЧНОЕ', fields: [
+['Имя', d.name],
+['Возраст', d.age],
+['Вид', d.species],
+['Пол', d.gender],
+['Занятие', d.job]
+]},
+{ name: '▸ ХАРАКТЕР', fields: [
+['Характер', d.personality],
+['Преимущества', d.strengths],
+['Слабость', d.weaknesses]
+]}
+];
+
+sections.forEach(section => {
+const secTitle = document.createElement('div');
+secTitle.style.fontSize = '13px';
+secTitle.style.fontWeight = '700';
+secTitle.style.color = titleColor;
+secTitle.style.letterSpacing = '3px';
+secTitle.style.opacity = '0.7';
+secTitle.style.borderBottom = `1px solid ${borderColor}`;
+secTitle.style.paddingBottom = '4px';
+secTitle.style.marginTop = '8px';
+secTitle.textContent = section.name;
+rightHalf.appendChild(secTitle);
+
+section.fields.forEach(([label, value]) => {
+const row = document.createElement('div');
+row.style.display = 'grid';
+row.style.gridTemplateColumns = '110px 1fr';
+row.style.gap = '12px';
+row.style.fontSize = '14px';
+row.style.padding = '3px 0';
+
+const lbl = document.createElement('span');
+lbl.style.fontWeight = '700';
+lbl.style.color = labelColor;
+lbl.style.textAlign = 'right';
+lbl.textContent = label;
+
+const val = document.createElement('span');
+val.style.wordBreak = 'break-word';
+val.textContent = value || '—';
+
+row.appendChild(lbl);
+row.appendChild(val);
+rightHalf.appendChild(row);
+});
+});
+
+// Способности
+const secSkills = document.createElement('div');
+secSkills.style.fontSize = '13px';
+secSkills.style.fontWeight = '700';
+secSkills.style.color = titleColor;
+secSkills.style.letterSpacing = '3px';
+secSkills.style.opacity = '0.7';
+secSkills.style.borderBottom = `1px solid ${borderColor}`;
+secSkills.style.paddingBottom = '4px';
+secSkills.style.marginTop = '8px';
+secSkills.textContent = '▸ СПОСОБНОСТИ';
+rightHalf.appendChild(secSkills);
+
+const skillsVal = document.createElement('div');
+skillsVal.style.fontSize = '14px';
+skillsVal.style.padding = '3px 0';
+skillsVal.style.wordBreak = 'break-word';
+skillsVal.textContent = d.skills || '—';
+rightHalf.appendChild(skillsVal);
+
+// Близкие
+const secFamily = document.createElement('div');
+secFamily.style.fontSize = '13px';
+secFamily.style.fontWeight = '700';
+secFamily.style.color = titleColor;
+secFamily.style.letterSpacing = '3px';
+secFamily.style.opacity = '0.7';
+secFamily.style.borderBottom = `1px solid ${borderColor}`;
+secFamily.style.paddingBottom = '4px';
+secFamily.style.marginTop = '8px';
+secFamily.textContent = '▸ БЛИЗКИЕ';
+rightHalf.appendChild(secFamily);
+
+const familyVal = document.createElement('div');
+familyVal.style.fontSize = '14px';
+familyVal.style.padding = '3px 0';
+familyVal.style.wordBreak = 'break-word';
+familyVal.textContent = d.family || '—';
+rightHalf.appendChild(familyVal);
+
+// Цитата
+const quote = document.createElement('div');
+quote.style.fontStyle = 'italic';
+quote.style.fontSize = '17px';
+quote.style.borderLeft = `3px solid ${borderColor}`;
+quote.style.paddingLeft = '18px';
+quote.style.margin = '6px 0';
+quote.textContent = `«${d.quote || '—'}»`;
+rightHalf.appendChild(quote);
+
+// История
+const history = document.createElement('div');
+history.style.marginTop = '4px';
+history.style.paddingTop = '8px';
+history.style.borderTop = `1px solid ${borderColor}`;
+history.style.fontSize = '13px';
+history.style.wordBreak = 'break-word';
+history.innerHTML = `<b>История:</b> ${d.backstory || '—'}`;
+rightHalf.appendChild(history);
+
+exportDiv.appendChild(leftHalf);
+exportDiv.appendChild(rightHalf);
+
+document.body.appendChild(exportDiv);
+await new Promise(r => setTimeout(r, 200));
+
+const actualHeight = exportDiv.scrollHeight;
+const canvas = await html2canvas(exportDiv, {
+scale: 2.5,
+backgroundColor: bgColor,
+useCORS: true,
+logging: false,
+height: actualHeight,
+windowHeight: actualHeight
+});
+document.body.removeChild(exportDiv);
+
+const link = document.createElement('a');
+const safeName = (d.name || 'персонаж').replace(/[^a-zа-я0-9]/gi, '_').substring(0, 30);
+link.download = `карточка_${safeName}.png`;
+link.href = canvas.toDataURL();
+link.click();
+
+} catch(e) {
+console.error(e);
+alert('Ошибка при создании картинки: ' + e.message);
+} finally {
+btn.textContent = originalText;
+btn.disabled = false;
+}
+});
+
+// ============================================================
+// 11. ИНИЦИАЛИЗАЦИЯ
+// ============================================================
+loadFromLocalStorage();
+renderSlots();
 </script>
 </body>
 </html>
